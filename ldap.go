@@ -90,6 +90,15 @@ func (l *Ldap) InitClient() (err error) {
 		log.Fatal(err)
 		return err
 	}
+
+	err = l.Client.Bind(l.username, l.password)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := l.UpdateZones(); err != nil {
+		return err
+	}
+
 	defer l.Client.Close()
 
 	return nil
