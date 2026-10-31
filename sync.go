@@ -59,10 +59,10 @@ func (l *Ldap) UpdateZones() error {
 		}
 
 		for _, lr := range lrpz {
-			err = zoneFileMap[zn].Insert(lr.AAAA())
-			err = zoneFileMap[zn].Insert(lr.A())
-			if err != nil {
-				return fmt.Errorf("updating zones: %w", err)
+			for _, rr := range lr.RRs() {
+				if err := zoneFileMap[zn].Insert(rr); err != nil {
+					return fmt.Errorf("updating zones: %w", err)
+				}
 			}
 		}
 	}

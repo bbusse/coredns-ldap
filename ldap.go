@@ -36,6 +36,16 @@ func (r *ldapRecord) AAAA() (a *dns.AAAA) {
 	return &dns.AAAA{Hdr: dns.RR_Header{Name: r.fqdn, Rrtype: dns.TypeAAAA, Class: dns.ClassINET, Ttl: 86400}, AAAA: r.ip6}
 }
 
+// RRs returns the address records of r, skipping families without an address
+func (r *ldapRecord) RRs() (rrs []dns.RR) {
+	if r.ip4.To4() != nil {
+		rrs = append(rrs, r.A())
+	}
+	if r.ip6 != nil {
+		rrs = append(rrs, r.AAAA())
+	}
+	return rrs
+}
 
 // Ldap is an ldap plugin to serve zone entries from a ldap backend.
 type Ldap struct {

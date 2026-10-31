@@ -115,7 +115,7 @@ func ParseStanza(c *caddy.Controller) (*Ldap, error) {
 
 			pagingLimit, err := strconv.ParseUint(c.Val(), 10, 0)
 			if err != nil {
-				return nil, c.Errf("paging_limit: %w", err)
+				return nil, c.Errf("paging_limit: %v", err)
 			}
 
 			ldap.pagingLimit = uint32(pagingLimit)
@@ -132,9 +132,11 @@ func ParseStanza(c *caddy.Controller) (*Ldap, error) {
 
 			ldap.SearchRequest.Filter = c.Val() // (objectClass=aeNwDevice)
 		case "attributes":
-			c.Next()
+			if !c.NextArg() || c.Val() != "{" {
+				return nil, c.ArgErr()
+			}
 
-			for c.NextBlock() {
+			for c.Next() && c.Val() != "}" {
 				switch c.Val() {
 				case "fqdn":
 					if !c.NextArg() {
@@ -184,7 +186,7 @@ func ParseStanza(c *caddy.Controller) (*Ldap, error) {
 
 			ttl, err := time.ParseDuration(c.Val())
 			if err != nil {
-				return nil, c.Errf("ttl: %w", err)
+				return nil, c.Errf("ttl: %v", err)
 			}
 
 			ldap.ttl = ttl
@@ -195,7 +197,7 @@ func ParseStanza(c *caddy.Controller) (*Ldap, error) {
 
 			syncInterval, err := time.ParseDuration(c.Val())
 			if err != nil {
-				return nil, c.Errf("sync_interval: %w", err)
+				return nil, c.Errf("sync_interval: %v", err)
 			}
 
 			ldap.syncInterval = syncInterval
